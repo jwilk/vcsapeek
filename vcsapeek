@@ -123,7 +123,7 @@ class VT(object):
                     raise
             return dict((x.fontpos, chr(x.unicode)) for x in entries)
 
-    def get_raw_data(self):
+    def peek_raw_data(self):
         os.lseek(self._vcsa, 0, os.SEEK_SET)
         header = os.read(self._vcsa, 4)
         header = VCSAHeader.from_buffer_copy(header)
@@ -145,12 +145,40 @@ class VT(object):
             attr = attr & ~hi_font_mask
             yield char, attr
 
-    def get_plain_text(self):
-        lines = self.get_raw_data()
+    def peek_plain_text(self):
+        lines = self.peek_raw_data()
         return ''.join(
             ''.join(char for char, attr in line) + '\n'
             for line in lines
         )
+
+    def _get_ansi_attr(self, attr=None):
+        if attr is None:
+            return '\x1b[0m'
+        blink = 5 if attr & 1 else 0
+        bold = 1 if attr & 16 else 0
+        fg = 30 + _linux_color_to_ansi[(attr & 15) >> 1]
+        bg = 40 + _linux_color_to_ansi[attr >> 5]
+        result = [0, fg, bg]
+        if bold:
+            result += [bold]
+        if blink:
+            result += [blink]
+        return '\x1b[{0}m'.format(';'.join(map(str, result)))
+
+    def peek_ansi_text(self):
+        last_ansi_attr = default_ansi_attr = self._get_ansi_attr()
+        result = []
+        for line in self.peek_raw_data():
+            for char, attr in line:
+                ansi_attr = self._get_ansi_attr(attr)
+                if ansi_attr != last_ansi_attr:
+                    result += [ansi_attr]
+                    last_ansi_attr = ansi_attr
+                result += [char]
+            result += [default_ansi_attr, '\n']
+            last_ansi_attr = default_ansi_attr
+        return ''.join(result)
 
     def __enter__(self):
         return self
@@ -167,9 +195,11 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-t', '--tty')
     parser.add_argument('-v', '--vcsa')
+    parser.add_argument('-f', '--format', choices=('plain-text', 'ansi-text'), default='plain-text')
     options = parser.parse_args()
     with VT(options.tty, options.vcsa) as vt:
-        print(vt.get_plain_text(), end='')
+        peek = getattr(vt, 'peek_' + options.format.replace('-', '_'))
+        print(peek(), end='')
 
 if __name__ == '__main__':
     main()
