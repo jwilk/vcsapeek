@@ -45,6 +45,17 @@ class VCSAChar(ctypes.Structure):
         ('attr', ctypes.c_ubyte),
     ]
 
+_linux_color_to_ansi = {
+    0: 0,
+    4: 1,
+    2: 2,
+    6: 3,
+    1: 4,
+    5: 5,
+    3: 6,
+    7: 7,
+}
+
 class VT(object):
 
     def __init__(self, tty=None, vcsa=None):
@@ -131,7 +142,7 @@ class VT(object):
             if attr & hi_font_mask:
                 char |= 0x100
             char = unicode_map[char]
-            attr = attr & hi_font_mask
+            attr = attr & ~hi_font_mask
             yield char, attr
 
     def get_plain_text(self):
