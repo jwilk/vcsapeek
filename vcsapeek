@@ -10,7 +10,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-t', '--tty')
     parser.add_argument('-v', '--vcsa')
-    parser.add_argument('-f', '--format', choices=('plain-text', 'ansi-text'), default='plain-text')
+    parser.add_argument('-f', '--format', choices=('plain-text', 'ansi-text', 'xhtml'), default='plain-text')
     options = parser.parse_args()
     with linuxvt.VT(options.tty, options.vcsa) as vt:
         peek = getattr(vt, 'peek_' + options.format.replace('-', '_'))

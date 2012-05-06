@@ -51,6 +51,30 @@ _linux_color_to_ansi = {
     7: 7,
 }
 
+_ansi_to_css = {
+    1: 'font-weight: bold',
+    5: 'text-decoration: blink',
+    30: 'color: black',
+    31: 'color: red',
+    32: 'color: green',
+    33: 'color: brown',
+    34: 'color: blue',
+    35: 'color: magenta',
+    36: 'color: cyan',
+    37: 'color: white',
+    40: 'background-color: black',
+    41: 'background-color: red',
+    42: 'background-color: green',
+    43: 'background-color: brown',
+    44: 'background-color: blue',
+    45: 'background-color: magenta',
+    46: 'background-color: cyan',
+    47: 'background-color: white',
+}
+
+def format_ansi(attrs):
+    return '\x1b[{0}m'.format(';'.join(map(str, attrs)))
+
 class VT(object):
 
     def __init__(self, tty=None, vcsa=None):
@@ -149,7 +173,7 @@ class VT(object):
 
     def _get_ansi_attr(self, attr=None):
         if attr is None:
-            return '\x1b[0m'
+            return [0]
         blink = 5 if attr & 1 else 0
         bold = 1 if attr & 16 else 0
         fg = 30 + _linux_color_to_ansi[(attr & 15) >> 1]
@@ -159,7 +183,7 @@ class VT(object):
             result += [bold]
         if blink:
             result += [blink]
-        return '\x1b[{0}m'.format(';'.join(map(str, result)))
+        return result
 
     def peek_ansi_text(self):
         last_ansi_attr = default_ansi_attr = self._get_ansi_attr()
@@ -168,12 +192,37 @@ class VT(object):
             for char, attr in line:
                 ansi_attr = self._get_ansi_attr(attr)
                 if ansi_attr != last_ansi_attr:
-                    result += [ansi_attr]
+                    result += [format_ansi(ansi_attr)]
                     last_ansi_attr = ansi_attr
                 result += [char]
-            result += [default_ansi_attr, '\n']
+            result += [format_ansi(default_ansi_attr), '\n']
             last_ansi_attr = default_ansi_attr
         return ''.join(result)
+
+    def peek_xhtml(self):
+        import lxml.html
+        root_elt = lxml.html.Element('pre')
+        root_elt.attrib['class'] = 'tty'
+        last_ansi_attr = default_ansi_attr = self._get_ansi_attr()
+        elt = None
+        for line in self.peek_raw_data():
+            if elt is not None:
+                elt.tail = '\n'
+                elt = None
+            for char, attr in line:
+                ansi_attr = self._get_ansi_attr(attr)
+                if (ansi_attr != last_ansi_attr) or (elt is None):
+                    last_ansi_attr = ansi_attr
+                    elt = lxml.html.Element('span')
+                    root_elt.append(elt)
+                    assert 0 in ansi_attr
+                    css = (_ansi_to_css[a] for a in ansi_attr if a != 0)
+                    css = '; '.join(css)
+                    elt.attrib['style'] = str(css)
+                elt.text = (elt.text or '') + char
+        if elt is not None:
+            elt.tail = '\n'
+        return lxml.html.tostring(root_elt, encoding='unicode') + '\n'
 
     def __enter__(self):
         return self
