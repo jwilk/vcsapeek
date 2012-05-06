@@ -54,22 +54,22 @@ _linux_color_to_ansi = {
 _ansi_to_css = {
     1: 'font-weight: bold',
     5: 'text-decoration: blink',
-    30: 'color: black',
-    31: 'color: red',
-    32: 'color: green',
-    33: 'color: brown',
-    34: 'color: blue',
-    35: 'color: magenta',
-    36: 'color: cyan',
-    37: 'color: white',
+    30: ('color: black', 'color: darkgrey'),
+    31: ('color: darkred', 'color: red'),
+    32: ('color: darkgreen', 'color: green'),
+    33: ('color: darkorange', 'color: orange'),
+    34: ('color: darkblue', 'color: darkblue'),
+    35: ('color: darkmagenta', 'color: magenta'),
+    36: ('color: darkcyan', 'color: cyan'),
+    37: ('color: lightgrey', 'color: white'),
     40: 'background-color: black',
-    41: 'background-color: red',
-    42: 'background-color: green',
-    43: 'background-color: brown',
-    44: 'background-color: blue',
-    45: 'background-color: magenta',
-    46: 'background-color: cyan',
-    47: 'background-color: white',
+    41: 'background-color: darkred',
+    42: 'background-color: darkgreen',
+    43: 'background-color: darkorange',
+    44: 'background-color: darkblue',
+    45: 'background-color: darkmagenta',
+    46: 'background-color: darkcyan',
+    47: 'background-color: lightgrey',
 }
 
 def format_ansi(attrs):
@@ -140,7 +140,15 @@ class VT(object):
                     continue
                 else:
                     raise
-            return dict((x.fontpos, chr(x.unicode)) for x in entries)
+            m = {}
+            for entry in entries:
+                try:
+                    old_chr = m[entry.fontpos]
+                except LookupError:
+                    m[entry.fontpos] = chr(entry.unicode)
+                else:
+                    m[entry.fontpos] = min(old_chr, chr(entry.unicode))
+            return m
 
     def peek_raw_data(self):
         os.lseek(self._vcsa, 0, os.SEEK_SET)
@@ -216,7 +224,15 @@ class VT(object):
                     elt = lxml.html.Element('span')
                     root_elt.append(elt)
                     assert 0 in ansi_attr
-                    css = (_ansi_to_css[a] for a in ansi_attr if a != 0)
+                    bold = 1 in ansi_attr
+                    css = []
+                    for a in ansi_attr:
+                        if a == 0:
+                            continue
+                        css_chunk = _ansi_to_css[a]
+                        if isinstance(css_chunk, tuple):
+                            css_chunk = css_chunk[bold]
+                        css += [css_chunk]
                     css = '; '.join(css)
                     elt.attrib['style'] = str(css)
                 elt.text = (elt.text or '') + char
