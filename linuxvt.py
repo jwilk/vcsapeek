@@ -128,7 +128,7 @@ class VT(object):
     def _get_unicode_map(self):
         entries = []
         unimap_desc = UnimapDesc(count=0, entries=None)
-        while 1:
+        while True:
             try:
                 fcntl.ioctl(self._tty, GIO_UNIMAP, unimap_desc)
             except IOError as ex:
