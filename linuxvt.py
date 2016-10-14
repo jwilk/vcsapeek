@@ -233,7 +233,7 @@ class VT(object):
         import lxml.html
         root_elt = lxml.html.Element('pre')
         root_elt.attrib['class'] = 'tty'
-        last_ansi_attr = default_ansi_attr = self._get_ansi_attr()
+        last_ansi_attr = self._get_ansi_attr()
         elt = None
         for line in self.peek_raw_data():
             if elt is not None:
