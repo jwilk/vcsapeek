@@ -95,7 +95,7 @@ _ansi_to_css = {
 }
 
 def format_ansi(attrs):
-    return '\x1b[{0}m'.format(';'.join(map(str, attrs)))
+    return '\x1B[{0}m'.format(';'.join(map(str, attrs)))
 
 class VT(object):
 
@@ -115,7 +115,7 @@ class VT(object):
             self._tty = os.open(tty, os.O_RDONLY | os.O_NOCTTY)
             if vcsa is None:
                 dev_stat = os.fstat(self._tty)
-                minor = dev_stat.st_rdev & 0xff
+                minor = dev_stat.st_rdev & 0xFF
                 major = dev_stat.st_rdev >> 8
                 if major != 4:
                     raise NotImplementedError
@@ -126,7 +126,7 @@ class VT(object):
         self._vcsa = os.open(vcsa, os.O_RDONLY)
         if tty is None:
             dev_stat = os.fstat(self._vcsa)
-            minor = dev_stat.st_rdev & 0xff
+            minor = dev_stat.st_rdev & 0xFF
             major = dev_stat.st_rdev >> 8
             if major != 7:
                 raise NotImplementedError
