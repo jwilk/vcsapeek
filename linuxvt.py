@@ -25,7 +25,7 @@ import errno
 import fcntl
 import os
 
-type(...)  # Python 3 is required
+lambda: (yield from [])  # Python >= 3.3 is required
 
 GIO_UNIMAP = 0x4B66
 VT_GETHIFONTMASK = 0x560D
