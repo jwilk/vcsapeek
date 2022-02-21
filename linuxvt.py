@@ -155,7 +155,7 @@ class VT(object):
         while True:
             try:
                 fcntl.ioctl(self._tty, GIO_UNIMAP, unimap_desc)
-            except IOError as ex:
+            except OSError as ex:
                 if ex.errno == errno.ENOMEM:
                     if unimap_desc.count == 0:
                         raise
