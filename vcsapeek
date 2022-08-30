@@ -12,8 +12,8 @@ lambda: (yield from [])  # Python >= 3.3 is required
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-t', '--tty')
-    parser.add_argument('-v', '--vcsa')
+    parser.add_argument('-t', '--tty', metavar='/dev/ttyN')
+    parser.add_argument('-v', '--vcsa', metavar='/dev/vcsaN')
     parser.add_argument('-f', '--format', choices=('plain-text', 'ansi-text', 'xhtml'), default='plain-text')
     options = parser.parse_args()
     with linuxvt.VT(options.tty, options.vcsa) as vt:
