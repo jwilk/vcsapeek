@@ -80,7 +80,8 @@ _ansi_to_css = {
 }
 
 def format_ansi(attrs):
-    return '\x1B[{0}m'.format(';'.join(map(str, attrs)))
+    attrs = str.join(';', map(str, attrs))
+    return f'\x1B[{attrs}m'
 
 class VT(object):
 
@@ -98,8 +99,8 @@ class VT(object):
         self._vcsa = None
         if vcsa is None and tty is None:
             n = self.get_active_vt()
-            tty = '/dev/tty%d' % n
-            vcsa = '/dev/vcsa%d' % n
+            tty = f'/dev/tty{n}'
+            vcsa = f'/dev/vcsa{n}'
         if tty is not None:
             self._tty = os.open(tty, os.O_RDONLY | os.O_NOCTTY)
             if vcsa is None:
@@ -110,7 +111,8 @@ class VT(object):
                     raise NotImplementedError
                 if not (0 < minor < 64):
                     raise NotImplementedError
-                vcsa = '/dev/vcsa%d' % minor
+                n = minor
+                vcsa = f'/dev/vcsa{n}'
         assert vcsa is not None
         self._vcsa = os.open(vcsa, os.O_RDONLY)
         if tty is None:
@@ -121,7 +123,8 @@ class VT(object):
                 raise NotImplementedError
             if not (128 < minor < 192):
                 raise NotImplementedError
-            tty = '/dev/tty%d' % (minor - 128)
+            n = minor - 128
+            tty = f'/dev/tty{n}'
             self._tty = os.open(tty, os.O_RDONLY | os.O_NOCTTY)
         assert self._tty is not None
         assert self._vcsa is not None
