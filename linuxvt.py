@@ -7,6 +7,7 @@ import ctypes
 import errno
 import fcntl
 import os
+import re
 
 0_0  # Python >= 3.6 is required
 
@@ -86,6 +87,15 @@ def format_ansi(attrs):
 class VT(object):
 
     def get_active_vt(self):
+        try:
+            with open('/sys/class/tty/tty0/active', 'rt', encoding='ASCII') as fp:
+                tty0 = fp.read()
+        except OSError:
+            pass
+        else:
+            match = re.match(r'^tty(\d+)$', tty0)
+            if match is not None:
+                return int(match.group(1))
         console = os.open('/dev/console', os.O_RDONLY | os.O_NOCTTY)
         state = VTState()
         try:
