@@ -84,18 +84,22 @@ def format_ansi(attrs):
 
 class VT(object):
 
+    def get_active_vt(self):
+        console = os.open('/dev/console', os.O_RDONLY | os.O_NOCTTY)
+        state = VTState()
+        try:
+            fcntl.ioctl(console, VT_GETSTATE, state)
+        finally:
+            os.close(console)
+        return state.active
+
     def __init__(self, tty=None, vcsa=None):
         self._tty = None
         self._vcsa = None
         if vcsa is None and tty is None:
-            console = os.open('/dev/console', os.O_RDONLY | os.O_NOCTTY)
-            state = VTState()
-            try:
-                fcntl.ioctl(console, VT_GETSTATE, state)
-            finally:
-                os.close(console)
-            tty = '/dev/tty%d' % state.active
-            vcsa = '/dev/vcsa%d' % state.active
+            n = self.get_active_vt()
+            tty = '/dev/tty%d' % n
+            vcsa = '/dev/vcsa%d' % n
         if tty is not None:
             self._tty = os.open(tty, os.O_RDONLY | os.O_NOCTTY)
             if vcsa is None:
