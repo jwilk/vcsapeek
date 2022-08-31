@@ -1,0 +1,14 @@
+.. code:: console
+
+   $ vcsapeek --help
+   usage: vcsapeek [-h] [-f FORMAT] [DEVICE]
+   
+   positional arguments:
+     DEVICE                device to peek into; either /dev/ttyN or /dev/vcsaN
+   
+   options:
+     -h, --help            show this help message and exit
+     -f FORMAT, --format FORMAT
+                           output format: 'plain-text' or 'ansi-text' or 'xhtml'
+
+.. vim:ft=rst ts=3 sts=3 sw=3 et
