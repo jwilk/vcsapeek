@@ -16,7 +16,11 @@ def main():
         'device', metavar='DEVICE', nargs='?',
         help='device to peek into; either /dev/ttyN or /dev/vcsaN',
     )
-    parser.add_argument('-f', '--format', choices=('plain-text', 'ansi-text', 'xhtml'), default='plain-text')
+    formats = ('plain-text', 'ansi-text', 'xhtml')
+    parser.add_argument('-f', '--format',
+        choices=formats,
+        default=formats[0],
+    )
     options = parser.parse_args()
     with linuxvt.VT(options.device) as vt:
         peek = getattr(vt, 'peek_' + options.format.replace('-', '_'))
