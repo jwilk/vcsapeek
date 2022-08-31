@@ -20,6 +20,7 @@ TTY_MAJOR = 4
 VCS_MAJOR = 7
 
 # From <linux/vt.h>:
+MIN_NR_CONSOLES = 1
 MAX_NR_CONSOLES = 63
 
 class VTState(ctypes.Structure):
@@ -131,7 +132,7 @@ class VT(object):
                     self._tty = os.dup(fd)
                 elif major == VCS_MAJOR:
                     n = minor - 128
-                    if 0 < n <= MAX_NR_CONSOLES:
+                    if MIN_NR_CONSOLES <= n <= MAX_NR_CONSOLES:
                         pass
                     else:
                         raise OSError(errno.ENOTTY, 'not a /dev/vcsaN device', device)
