@@ -15,6 +15,13 @@ GIO_UNIMAP = 0x4B66
 VT_GETHIFONTMASK = 0x560D
 VT_GETSTATE = 0x5603
 
+# From <linux/major.h>:
+TTY_MAJOR = 4
+VCS_MAJOR = 7
+
+# From <linux/vt.h>:
+MAX_NR_CONSOLES = 63
+
 class VTState(ctypes.Structure):
     _fields_ = [
         ('active', ctypes.c_ushort),
@@ -117,9 +124,9 @@ class VT(object):
                 dev_stat = os.fstat(self._tty)
                 minor = dev_stat.st_rdev & 0xFF
                 major = dev_stat.st_rdev >> 8
-                if major != 4:
+                if major != TTY_MAJOR:
                     raise NotImplementedError
-                if not (0 < minor < 64):
+                if not (0 < minor <= MAX_NR_CONSOLES):
                     raise NotImplementedError
                 n = minor
                 vcsa = f'/dev/vcsa{n}'
@@ -129,11 +136,11 @@ class VT(object):
             dev_stat = os.fstat(self._vcsa)
             minor = dev_stat.st_rdev & 0xFF
             major = dev_stat.st_rdev >> 8
-            if major != 7:
-                raise NotImplementedError
-            if not (128 < minor < 192):
+            if major != VCS_MAJOR:
                 raise NotImplementedError
             n = minor - 128
+            if not (0 < n <= MAX_NR_CONSOLES):
+                raise NotImplementedError
             tty = f'/dev/tty{n}'
             self._tty = os.open(tty, os.O_RDONLY | os.O_NOCTTY)
         assert self._tty is not None
