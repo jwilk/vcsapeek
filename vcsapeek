@@ -17,9 +17,10 @@ def main():
         help='device to peek into; either /dev/ttyN or /dev/vcsaN',
     )
     formats = ('plain-text', 'ansi-text', 'xhtml')
-    parser.add_argument('-f', '--format',
+    parser.add_argument('-f', '--format', metavar='FORMAT',
         choices=formats,
         default=formats[0],
+        help='output format: ' + str.join(' or ', map(repr, formats))
     )
     options = parser.parse_args()
     with linuxvt.VT(options.device) as vt:
