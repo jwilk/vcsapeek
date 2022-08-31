@@ -12,11 +12,13 @@ import linuxvt
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-t', '--tty', metavar='/dev/ttyN')
-    parser.add_argument('-v', '--vcsa', metavar='/dev/vcsaN')
+    parser.add_argument(
+        'device', metavar='DEVICE', nargs='?',
+        help='device to peek into; either /dev/ttyN or /dev/vcsaN',
+    )
     parser.add_argument('-f', '--format', choices=('plain-text', 'ansi-text', 'xhtml'), default='plain-text')
     options = parser.parse_args()
-    with linuxvt.VT(options.tty, options.vcsa) as vt:
+    with linuxvt.VT(options.device) as vt:
         peek = getattr(vt, 'peek_' + options.format.replace('-', '_'))
         print(peek(), end='')
 

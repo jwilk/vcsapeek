@@ -111,38 +111,39 @@ class VT(object):
             os.close(console)
         return state.active
 
-    def __init__(self, tty=None, vcsa=None):
+    def __init__(self, device=None):
         self._tty = None
         self._vcsa = None
-        if vcsa is None and tty is None:
+        if device is None:
             n = self.get_active_vt()
-            tty = f'/dev/tty{n}'
-            vcsa = f'/dev/vcsa{n}'
-        if tty is not None:
-            self._tty = os.open(tty, os.O_RDONLY | os.O_NOCTTY)
-            if vcsa is None:
-                dev_stat = os.fstat(self._tty)
+        else:
+            fd = os.open(device, os.O_RDONLY | os.O_NOCTTY)
+            try:
+                dev_stat = os.fstat(fd)
                 minor = dev_stat.st_rdev & 0xFF
                 major = dev_stat.st_rdev >> 8
-                if major != TTY_MAJOR:
-                    raise NotImplementedError
-                if not (0 < minor <= MAX_NR_CONSOLES):
-                    raise NotImplementedError
-                n = minor
-                vcsa = f'/dev/vcsa{n}'
-        assert vcsa is not None
-        self._vcsa = os.open(vcsa, os.O_RDONLY)
-        if tty is None:
-            dev_stat = os.fstat(self._vcsa)
-            minor = dev_stat.st_rdev & 0xFF
-            major = dev_stat.st_rdev >> 8
-            if major != VCS_MAJOR:
-                raise NotImplementedError
-            n = minor - 128
-            if not (0 < n <= MAX_NR_CONSOLES):
-                raise NotImplementedError
+                if major == TTY_MAJOR:
+                    n = minor
+                    if 0 < n <= MAX_NR_CONSOLES:
+                        pass
+                    else:
+                        raise NotImplementedError
+                    self._tty = os.dup(fd)
+                elif major == VCS_MAJOR:
+                    n = minor - 128
+                    if 0 < n <= MAX_NR_CONSOLES:
+                        pass
+                    else:
+                        raise NotImplementedError
+                    self._vcsa = os.dup(fd)
+            finally:
+                os.close(fd)
+        if self._tty is None:
             tty = f'/dev/tty{n}'
             self._tty = os.open(tty, os.O_RDONLY | os.O_NOCTTY)
+        if self._vcsa is None:
+            vcsa = f'/dev/vcsa{n}'
+            self._vcsa = os.open(vcsa, os.O_RDONLY)
         assert self._tty is not None
         assert self._vcsa is not None
         self._unicode_map = self._get_unicode_map()
