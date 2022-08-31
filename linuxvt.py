@@ -127,14 +127,14 @@ class VT(object):
                     if 0 < n <= MAX_NR_CONSOLES:
                         pass
                     else:
-                        raise NotImplementedError
+                        raise OSError(errno.ENOTTY, 'not a /dev/ttyN device', device)
                     self._tty = os.dup(fd)
                 elif major == VCS_MAJOR:
                     n = minor - 128
                     if 0 < n <= MAX_NR_CONSOLES:
                         pass
                     else:
-                        raise NotImplementedError
+                        raise OSError(errno.ENOTTY, 'not a /dev/vcsaN device', device)
                     self._vcsa = os.dup(fd)
             finally:
                 os.close(fd)
