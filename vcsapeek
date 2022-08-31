@@ -16,7 +16,7 @@ def main():
         'device', metavar='DEVICE', nargs='?',
         help='device to peek into; either /dev/ttyN or /dev/vcsaN',
     )
-    formats = ('plain-text', 'ansi-text', 'xhtml')
+    formats = ('text', 'ansi', 'xhtml')
     parser.add_argument('-f', '--format', metavar='FORMAT',
         choices=formats,
         default=formats[0],
@@ -24,7 +24,7 @@ def main():
     )
     options = parser.parse_args()
     with linuxvt.VT(options.device) as vt:
-        peek = getattr(vt, 'peek_' + options.format.replace('-', '_'))
+        peek = getattr(vt, 'peek_' + options.format)
         print(peek(), end='')
 
 if __name__ == '__main__':

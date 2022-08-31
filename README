@@ -9,6 +9,6 @@
    options:
      -h, --help            show this help message and exit
      -f FORMAT, --format FORMAT
-                           output format: 'plain-text' or 'ansi-text' or 'xhtml'
+                           output format: 'text' or 'ansi' or 'xhtml'
 
 .. vim:ft=rst ts=3 sts=3 sw=3 et

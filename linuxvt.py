@@ -205,7 +205,7 @@ class VT(object):
             attr = attr & ~hi_font_mask
             yield char, attr
 
-    def peek_plain_text(self):
+    def peek_text(self):
         lines = self.peek_raw_data()
         return ''.join(
             ''.join(char for char, attr in line) + '\n'
@@ -226,7 +226,7 @@ class VT(object):
             result += [blink]
         return result
 
-    def peek_ansi_text(self):
+    def peek_ansi(self):
         last_ansi_attr = default_ansi_attr = self._get_ansi_attr()
         result = []
         for line in self.peek_raw_data():
