@@ -207,10 +207,10 @@ class VT(object):
 
     def peek_text(self):
         lines = self.peek_raw_data()
-        return ''.join(
-            ''.join(char for char, attr in line) + '\n'
+        return str.join('', (
+            str.join('', (char for char, attr in line)) + '\n'
             for line in lines
-        )
+        ))
 
     def _get_ansi_attr(self, attr=None):
         if attr is None:
@@ -238,7 +238,7 @@ class VT(object):
                 result += [char]
             result += [format_ansi(default_ansi_attr), '\n']
             last_ansi_attr = default_ansi_attr
-        return ''.join(result)
+        return str.join('', result)
 
     def peek_xhtml(self):
         import lxml.html
@@ -266,7 +266,7 @@ class VT(object):
                         if isinstance(css_chunk, tuple):
                             css_chunk = css_chunk[bold]
                         css += [css_chunk]
-                    css = '; '.join(css)
+                    css = str.join('; ', css)
                     elt.attrib['style'] = str(css)
                 elt.text = (elt.text or '') + char
         if elt is not None:
