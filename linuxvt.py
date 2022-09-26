@@ -104,7 +104,7 @@ class VT(object):
             match = re.match(r'^tty(\d+)$', tty0)
             if match is not None:
                 return int(match.group(1))
-        console = os.open('/dev/console', os.O_RDONLY | os.O_NOCTTY)
+        console = os.open('/dev/tty0', os.O_RDONLY | os.O_NOCTTY)
         state = VTState()
         try:
             fcntl.ioctl(console, VT_GETSTATE, state)
