@@ -2,10 +2,10 @@
 
    $ vcsapeek --help
    usage: vcsapeek [-h] [-f FORMAT] [DEVICE]
-   
+
    positional arguments:
      DEVICE                device to peek into; either /dev/ttyN or /dev/vcsaN
-   
+
    options:
      -h, --help            show this help message and exit
      -f FORMAT, --format FORMAT
