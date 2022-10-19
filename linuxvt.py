@@ -11,7 +11,10 @@ import re
 
 0_0  # Python >= 3.6 is required
 
+# From <linux/kd.h>:
 GIO_UNIMAP = 0x4B66
+
+# From <linux/vt.h>:
 VT_GETHIFONTMASK = 0x560D
 VT_GETSTATE = 0x5603
 
