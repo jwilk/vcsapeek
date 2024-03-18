@@ -95,7 +95,7 @@ def format_ansi(attrs):
     attrs = str.join(';', map(str, attrs))
     return f'\x1B[{attrs}m'
 
-class VT(object):
+class VT:
 
     def get_active_vt(self):
         try:
