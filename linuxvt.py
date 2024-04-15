@@ -93,7 +93,7 @@ _ansi_to_css = {
 
 def format_ansi(attrs):
     attrs = str.join(';', map(str, attrs))
-    return f'\x1B[{attrs}m'
+    return f'\33[{attrs}m'
 
 class VT:
 
