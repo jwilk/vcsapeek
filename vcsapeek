@@ -12,6 +12,7 @@ import linuxvt
 
 def main():
     ap = argparse.ArgumentParser()
+    ap.color = False
     ap.add_argument(
         'device', metavar='DEVICE', nargs='?',
         help='device to peek into; either /dev/ttyN or /dev/vcsaN',
