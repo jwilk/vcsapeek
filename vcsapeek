@@ -11,18 +11,18 @@ import linuxvt
 0_0  # Python >= 3.6 is required
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
+    ap = argparse.ArgumentParser()
+    ap.add_argument(
         'device', metavar='DEVICE', nargs='?',
         help='device to peek into; either /dev/ttyN or /dev/vcsaN',
     )
     formats = ('text', 'ansi', 'xhtml')
-    parser.add_argument('-f', '--format', metavar='FORMAT',
+    ap.add_argument('-f', '--format', metavar='FORMAT',
         choices=formats,
         default=formats[0],
         help='output format: ' + str.join(' or ', map(repr, formats))
     )
-    options = parser.parse_args()
+    options = ap.parse_args()
     with linuxvt.VT(options.device) as vt:
         peek = getattr(vt, 'peek_' + options.format)
         print(peek(), end='')
